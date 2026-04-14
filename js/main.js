@@ -185,7 +185,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 /**
- * Form submission
+ * Form submission - Send to Formspree
  */
 function submitInquiry(event) {
     event.preventDefault();
@@ -194,31 +194,31 @@ function submitInquiry(event) {
     const formData = new FormData(form);
     const product = document.getElementById('modalProductName').textContent;
     
-    // Collect data
-    const data = {
-        product: product,
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        company: formData.get('company'),
-        quantity: formData.get('quantity'),
-        message: formData.get('message'),
-        timestamp: new Date().toISOString()
-    };
+    // Add product info to form data
+    formData.append('product', product);
+    formData.append('_subject', 'Новый запрос с Greatphar.com - ' + product);
     
-    // TODO: Send data to your backend or email service
-    // For now, just log and show success message
-    console.log('Inquiry submitted:', data);
-    
-    // Show success message
-    showNotification('Спасибо! Ваш запрос отправлен. Мы свяжемся с вами в ближайшее время.', 'success');
-    
-    // Close modal and reset form
-    closeModal();
-    form.reset();
-    
-    // Alternative: Send to a form service like Formspree
-    // submitToFormspree(data);
+    // Submit to Formspree
+    fetch('https://formspree.io/f/xrerbgoz', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showNotification('Спасибо! Ваш запрос отправлен. Мы свяжемся с вами в ближайшее время.', 'success');
+            closeModal();
+            form.reset();
+        } else {
+            showNotification('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.', 'error');
+    });
 }
 
 /**
