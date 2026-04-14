@@ -426,7 +426,7 @@
             <button class="modal-close" onclick="closeModal()">&times;</button>
             <h3>Запрос цены</h3>
             <p class="modal-product">Продукт: <span id="modalProductName">-</span></p>
-            <form id="inquiryForm" onsubmit="submitInquiry(event)">
+            <form id="inquiryForm" action="https://formspree.io/f/xrerbgoz" method="POST">
                 <div class="form-group">
                     <label for="name">Ваше имя *</label>
                     <input type="text" id="name" name="name" required>
@@ -451,6 +451,11 @@
                     <label for="message">Сообщение</label>
                     <textarea id="message" name="message" rows="4" placeholder="Опишите ваш проект или задайте вопрос..."></textarea>
                 </div>
+                
+                <!-- Formspree 隐藏字段 -->
+                <input type="hidden" name="_subject" value="Новый запрос с Greatphar.com">
+                <input type="hidden" name="product" id="formProduct">
+                
                 <button type="submit" class="btn btn-primary btn-block">Отправить запрос</button>
             </form>
         </div>

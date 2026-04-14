@@ -185,40 +185,21 @@ document.addEventListener('keydown', function(e) {
 });
 
 /**
- * Form submission - Send to Formspree
+ * Open inquiry modal with product info
  */
-function submitInquiry(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const formData = new FormData(form);
-    const product = document.getElementById('modalProductName').textContent;
-    
-    // Add product info to form data
-    formData.append('product', product);
-    formData.append('_subject', 'Новый запрос с Greatphar.com - ' + product);
-    
-    // Submit to Formspree
-    fetch('https://formspree.io/f/xrerbgoz', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        if (response.ok) {
-            showNotification('Спасибо! Ваш запрос отправлен. Мы свяжемся с вами в ближайшее время.', 'success');
-            closeModal();
-            form.reset();
-        } else {
-            showNotification('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.', 'error');
-    });
+function openInquiryModal(productName) {
+    document.getElementById('modalProductName').textContent = productName;
+    document.getElementById('formProduct').value = productName;
+    document.getElementById('inquiryModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Close modal
+ */
+function closeModal() {
+    document.getElementById('inquiryModal').classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 /**
