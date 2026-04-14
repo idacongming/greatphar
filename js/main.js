@@ -218,12 +218,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formData = new FormData(this);
             
-            fetch('https://formspree.io/f/xrerbgoz', {
+            fetch('https://formsubmit.co/ajax/shenzhenqihong@126.com', {
                 method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                body: formData
             })
             .then(response => {
                 if (response.ok) {
