@@ -203,11 +203,15 @@ function closeModal() {
 }
 
 /**
- * Handle form submission via AJAX
+ * Handle form submission via FormSubmit
+ * Using standard form POST (more reliable than AJAX for FormSubmit free tier)
  */
 document.addEventListener('DOMContentLoaded', function() {
     const inquiryForm = document.getElementById('inquiryForm');
     if (inquiryForm) {
+        // Save original form HTML for reset
+        inquiryForm.originalHTML = inquiryForm.innerHTML;
+        
         inquiryForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -216,42 +220,74 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = 'Отправка...';
             submitBtn.disabled = true;
             
-            const formData = new FormData(this);
+            // Create a hidden iframe for form submission
+            const iframeName = 'formSubmitIframe' + Date.now();
+            const iframe = document.createElement('iframe');
+            iframe.name = iframeName;
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
             
-            fetch('https://formsubmit.co/ajax/shenzhenqihong@126.com', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    // 显示感谢信息
-                    this.innerHTML = `
-                        <div style="text-align: center; padding: 40px 20px;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
-                            <h3 style="color: var(--primary-green); margin-bottom: 15px;">Спасибо!</h3>
-                            <p style="color: var(--text-gray);">Ваш запрос отправлен. Мы свяжемся с вами в ближайшее время.</p>
-                        </div>
-                    `;
-                    
-                    // 3秒后自动关闭弹窗
+            // Set form target to iframe
+            this.target = iframeName;
+            this.action = 'https://formsubmit.co/shenzhenqihong@126.com';
+            this.method = 'POST';
+            
+            // Add hidden fields for FormSubmit configuration
+            const hiddenFields = [
+                { name: '_subject', value: 'Новый запрос с Greatphar.com' },
+                { name: '_template', value: 'table' },
+                { name: '_captcha', value: 'false' }
+            ];
+            
+            const addedFields = [];
+            hiddenFields.forEach(field => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field.name;
+                input.value = field.value;
+                this.appendChild(input);
+                addedFields.push(input);
+            });
+            
+            // Handle iframe load (submission complete)
+            iframe.addEventListener('load', function() {
+                // Show success message
+                inquiryForm.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 20px; color: var(--primary-green);">✓</div>
+                        <h3 style="color: var(--primary-green); margin-bottom: 15px; font-size: 24px;">Спасибо!</h3>
+                        <p style="color: var(--text-gray); font-size: 16px; line-height: 1.6;">Ваш запрос отправлен. Мы свяжемся с вами в ближайшее время.</p>
+                    </div>
+                `;
+                
+                // Cleanup iframe
+                setTimeout(() => {
+                    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                }, 1000);
+                
+                // Close modal after 3 seconds
+                setTimeout(() => {
+                    closeModal();
+                    // Reset form after modal closes
                     setTimeout(() => {
-                        closeModal();
-                        // 重置表单（延迟执行，等弹窗关闭后）
-                        setTimeout(() => {
-                            this.reset();
-                            this.innerHTML = this.originalHTML || this.innerHTML;
-                        }, 300);
-                    }, 3000);
-                } else {
-                    throw new Error('Submission failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                        inquiryForm.innerHTML = inquiryForm.originalHTML;
+                        inquiryForm.target = '';
+                        inquiryForm.action = '';
+                        inquiryForm.method = '';
+                    }, 300);
+                }, 3000);
+            });
+            
+            // Handle errors
+            iframe.addEventListener('error', function() {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
                 alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
             });
+            
+            // Submit the form
+            this.submit();
         });
     }
 });
