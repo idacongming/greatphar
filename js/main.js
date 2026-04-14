@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Set form target to iframe
             this.target = iframeName;
-            this.action = 'https://formsubmit.co/shenzhenqihong@126.com';
+            this.action = 'https://formsubmit.co/8bc25ceaedf80fa4a90476a04f4f71ba';
             this.method = 'POST';
             
             // Add hidden fields for FormSubmit configuration
