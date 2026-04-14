@@ -203,6 +203,63 @@ function closeModal() {
 }
 
 /**
+ * Handle form submission via AJAX
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const inquiryForm = document.getElementById('inquiryForm');
+    if (inquiryForm) {
+        inquiryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Отправка...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(this);
+            
+            fetch('https://formspree.io/f/xrerbgoz', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 显示感谢信息
+                    this.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
+                            <h3 style="color: var(--primary-green); margin-bottom: 15px;">Спасибо!</h3>
+                            <p style="color: var(--text-gray);">Ваш запрос отправлен. Мы свяжемся с вами в ближайшее время.</p>
+                        </div>
+                    `;
+                    
+                    // 3秒后自动关闭弹窗
+                    setTimeout(() => {
+                        closeModal();
+                        // 重置表单（延迟执行，等弹窗关闭后）
+                        setTimeout(() => {
+                            this.reset();
+                            this.innerHTML = this.originalHTML || this.innerHTML;
+                        }, 300);
+                    }, 3000);
+                } else {
+                    throw new Error('Submission failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+            });
+        });
+    }
+});
+
+/**
  * Submit to Formspree (example)
  * Replace with your Formspree endpoint
  */
